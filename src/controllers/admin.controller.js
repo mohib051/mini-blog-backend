@@ -1,5 +1,5 @@
 const postModel = require("../model/post.model");
-
+const mongoose = require("mongoose");
 module.exports.slashcontroller = (req, res) => {
   res.send("Welcome to the Admin API");
 };
@@ -47,9 +47,33 @@ module.exports.updatePost = async (req, res) => {
     res.status(200).json({ status: "success", data: updated });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ status: "error", message: "Internal server error." });
+    res
+      .status(500)
+      .json({ status: "error", message: "Internal server error." });
   }
 };
-module.exports.deletePost = (req, res) => {
-  res.send(`Delete post with ID: ${req.params.id}`);
+module.exports.deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send("Post ID is required");
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid post ID format.",
+      });
+    }
+    const deletedPost = await postModel.findByIdAndDelete(id);
+    if (!deletedPost) {
+      return res.status(404).send("Post not found");
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Post deleted successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal Server Error");
+  }
 };
