@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const config = require('../config/config');
 
 const  connect = ()=>{
-        mongoose.connect("mongodb://localhost:27017/miniblog")
+        mongoose.connect(config.DB_URL)
         .then(() => {
             console.log("Connected to the database successfully");
         })

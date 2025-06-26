@@ -77,3 +77,26 @@ module.exports.deletePost = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
+module.exports.getSinglePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send("Post ID is required");
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid post ID format.",
+      });
+    }
+    const post = await postModel.findById(id);
+    if (!post) {
+      return res.status(404).send("Post not found");
+    }
+    res.status(200).json({ status: "success", data: post });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal Server Error");
+  }
+}
